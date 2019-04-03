@@ -6,10 +6,11 @@ setwd("C:/Users/DoQuangTrung/Desktop/project")
 preData_train <- read.csv("train.csv")
 preDatedat_test <- read.csv("test.csv")
 
-#
-# md <- lm(SalePrice~. , data= preData_train)
+
 
 #
+
+
 
 # xem qua cấu trúc của predata 
 str(preData_train) 
@@ -22,28 +23,42 @@ library(dplyr)
 library(tidyverse)
 
 train <- select_if( preData_train , is.numeric)  # có thêm feature saleProduc
-test <- select_if(preDatedat_test , is.numeric) 
+test <- select_if(preDatedat_test , is.numeric)
 
 #xóa cột id  vì ko cần thiết
 train$Id <-NULL
 test$Id<-NULL
+write.csv(train , "build_mode.csv")
+write.csv(test , 'apply_model.csv')
+
 
 # ép lại kiểu factor cho các biến
 train$MSSubClass  <- factor(train$MSSubClass)
 train$OverallQual <- factor(train$OverallQual)
 train$OverallCond <- factor(train$OverallCond) 
+train$FullBath <-factor(train$FullBath)
+train$BsmtFullBath <- factor(train$BsmtFullBath)
+train$FullBath <-factor(train$FullBath)
+train$HalfBath <- factor(train$HalfBath)
+train$BedroomAbvGr <- factor(train$BedroomAbvGr)
+train$KitchenAbvGr <- factor(train$KitchenAbvGr)
+train$TotRmsAbvGrd <- factor(train$TotRmsAbvGrd)
+train$Fireplaces <- factor(train$Fireplaces)
 #------
-test$MSSubClass  <- factor(test$MSSubClass)
-test$OverallQual <- factor(test$OverallQual)
-test$OverallCond <- factor(test$OverallCond) 
+# test$MSSubClass  <- factor(test$MSSubClass)
+# test$OverallQual <- factor(test$OverallQual)
+# test$OverallCond <- factor(test$OverallCond) 
 
 
 # kiểm tra lại data set 
-str(train)
+# str(train)
+# 
+# 
 
-
-
-
+md <- lm(SalePrice~. , data= train)
+summary(md)
+Model2<-step(md, direction="backward")
+summary(md)
 
 #-----------------------------------------------------------------------
 # THống kê mô tả các features của bộ train 
@@ -89,7 +104,7 @@ boxplot(LotFrontage , main =" biểu đồ box plot của LotFrontAge", col="mar
 
 #LotArea
 
-ggplot(train,aes(LotArea)) + geom_histogram(fill='maroon')+ theme_bw()
+ggplot(train,aes(LotArea)) + geom_density(fill='maroon')+ theme_bw()
 
 
 
@@ -195,10 +210,9 @@ ggplot(train,aes(GarageYrBlt))+ geom_histogram(fill ='maroon' )+
 # 
 # GarageArea: Size of garage in square feet
 
-# gar <- filter( train,GarageCars>0)
 
 
-ggplot(gar,aes(x='', y=GarageArea))+ geom_boxplot(aes(fill=factor(GarageCars)),position="dodge" )+
+ggplot(train,aes(x='', y=GarageArea))+ geom_boxplot(aes(fill=factor(GarageCars)),position="dodge" )+
 
   theme_bw() + theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   labs(
@@ -234,7 +248,7 @@ wd<-ggplot(train,aes(WoodDeckSF))+ geom_density(fill ='maroon')+theme_bw() +
   labs(
     subtitle = "  Wood deck area in square feet ",
     title="   ",
-    y= "density",
+    y= "",
     x="WoodDeckSF"
   )
 opsf <-ggplot(train,aes(OpenPorchSF))+ geom_density(fill ='maroon')+theme_bw() +
@@ -242,7 +256,7 @@ opsf <-ggplot(train,aes(OpenPorchSF))+ geom_density(fill ='maroon')+theme_bw() +
   labs(
     subtitle = " Open porch area in square feet ",
     title="   ",
-    y= "density",
+    y= "",
     x="OpenPorchSF"
   )
 
@@ -252,25 +266,25 @@ ep <-ggplot(train,aes(EnclosedPorch))+ geom_density(fill ='maroon')+theme_bw() +
   labs(
     subtitle = " Enclosed porch area in square feet ",
     title="   ",
-    y= "density",
+    y= "",
     x="EnclosedPorch"
   )
 
-tsp <-ggplot(train,aes(ThreeSsnPorch))+ geom_density(fill ='maroon')+theme_bw() +
+tsp <- ggplot(train,aes(ThreeSsnPorch))+ geom_density(fill ='maroon')+theme_bw() +
   theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   labs(
-    subtitle = "  Three season porch area in square feet ",
+    subtitle = "  Three season \n porch area in square feet ",
     title="   ",
-    y= "density",
+    y= "",
     x="ThreeSsnPorch"
   )
 
 sp <-ggplot(train,aes(ScreenPorch))+ geom_density(fill ='maroon')+theme_bw() +
   theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   labs(
-    subtitle = " Screen porch area in square feet ",
+    subtitle = " Screen porch \n area in square feet ",
     title="   ",
-    y= "density",
+    y= "",
     x="ScreenPorch"
   )
 pa<-ggplot(train,aes(PoolArea))+ geom_density(fill ='maroon')+theme_bw() +
@@ -282,57 +296,168 @@ pa<-ggplot(train,aes(PoolArea))+ geom_density(fill ='maroon')+theme_bw() +
     x="PoolArea"
   )
 
-pushViewport(viewport(layout = grid.layout(3, 2)))
 
-print(wd, vp = viewport(layout.pos.row = 1, layout.pos.col = 1))
-print(opsf, vp = viewport(layout.pos.row = 1, layout.pos.col = 2))
-print(ep, vp = viewport(layout.pos.row = 2, layout.pos.col = 1))
-print(tsp, vp = viewport(layout.pos.row = 2, layout.pos.col = 2))
-print(sp, vp = viewport(layout.pos.row = 3, layout.pos.col = 1))
-print(pa, vp = viewport(layout.pos.row = 3, layout.pos.col = 2))
+#MasVnrArea: Masonry veneer area in square feet  : độ dày 
 
-
-
-
-
-#---------------------------------------------------------------------------------------------
-
-#MasVnrArea: Masonry veneer area in square feet
-
-
-#BsmtFinSF1: Type 1 finished square feet
-# BsmtFinSF2: Type 2 finished square feet
-# 
-# BsmtUnfSF: Unfinished square feet of basement area
-# 
-# TotalBsmtSF: Total square feet of basement area
+mva<- ggplot(train,aes(MasVnrArea)) + geom_density(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    title="  Masonry veneer area   ",
+    subtitle = " Diên tích phần lát \n tường tính theo feet^2 ",
+     y= "",
+    x="MasVnrArea"
+  )
 
 
 ####
 # 1stFlrSF: First Floor square feet
 # 
 # 2ndFlrSF: Second floor square feet
+
+
+stfloor<-ggplot(train,aes(X1stFlrSF)) + geom_density(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    title=" First Floor square feet   ",
+    subtitle = " Diên tích sàn tầng1 (dv:feet^2) ",
+    y= "",
+    x="1st Floor area"
+  )
+
+
+ndfloor<-ggplot(train,aes(X2ndFlrSF)) + geom_density(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    title="  Second floor square feet  ",
+    subtitle = " Diên tích sàn tầng 2 tường (dv:feet^2) ",
+    y= "",
+    x="Floor area"
+  )
+
+pushViewport(viewport(layout = grid.layout(3, 3)))
+
+print(wd, vp = viewport(layout.pos.row = 1, layout.pos.col = 1))
+print(opsf, vp = viewport(layout.pos.row = 1, layout.pos.col = 2))
+print(ep, vp = viewport(layout.pos.row = 1, layout.pos.col = 3))
+print(tsp, vp = viewport(layout.pos.row = 2, layout.pos.col = 1))
+print(sp, vp = viewport(layout.pos.row = 2, layout.pos.col = 2))
+print(pa, vp = viewport(layout.pos.row = 2, layout.pos.col = 3))
+print(stfloor, vp = viewport(layout.pos.row = 3, layout.pos.col = 1))
+print(ndfloor, vp = viewport(layout.pos.row = 3, layout.pos.col = 2))
+print(mva, vp = viewport(layout.pos.row = 3, layout.pos.col = 3))
+
+
+#BsmtFinSF1: Type 1 finished square feet  (bỏ)
+
+# BsmtFinSF2: Type 2 finished square feet (bỏ)
 # 
+# 
+
+#--------------------------------------------------------------------------------
+
 # LowQualFinSF: Low quality finished square feet (all floors)
+
+ggplot(train,aes( FullBath ) ) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    title="  Second floor square feet  ",
+    subtitle = " Diên tích sàn tầng 2 tường (dv:feet^2) ",
+    y= "",
+    x="Quanlity"
+  )
+
+
+
+
 # 
 # GrLivArea: Above grade (ground) living area square feet
 # 
-# BsmtFullBath: Basement full bathrooms
-# 
+
+ggplot(train,aes( GrLivArea ) ) + geom_density(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+# BsmtFullBath: Basement full bathrooms 
+#
+ggplot(train,aes( BsmtFullBath ) ) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
 # BsmtHalfBath: Basement half bathrooms
 # 
+ggplot(train,aes( BsmtHalfBath ) ) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+
+
 # FullBath: Full bathrooms above grade
-# 
+#
+ggplot(train,aes( BsmtHalfBath ) ) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+
+
 # HalfBath: Half baths above grade
 # 
-# Bedroom: Bedrooms above grade (does NOT include basement bedrooms)
+
+ggplot(train,aes( HalfBath ) ) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+
+# BedroomAbvGr: Bedrooms above grade (does NOT include basement bedrooms)
 # 
+ggplot(train,aes( BedroomAbvGr) ) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+
 # Kitchen: Kitchens above grade
+
+
+ggplot(train,aes( KitchenAbvGr) ) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+
 # TotRmsAbvGrd: Total rooms above grade (does not include bathrooms)
+
+ggplot(train,aes( TotRmsAbvGrd) ) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
 # Fireplaces: Number of fireplaces
 # 
+ggplot(train,aes( Fireplaces) ) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
 
+# BsmtUnfSF: Unfinished square feet of basement area
+# 
+
+ggplot(train,aes( BsmtUnfSF) ) + geom_density(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+# TotalBsmtSF: Total square feet of basement area
+ggplot(train,aes( TotalBsmtSF) ) + geom_density(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
 
 

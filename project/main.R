@@ -13,6 +13,7 @@ str(data)
 
 library(dplyr)
 library(tidyverse)
+library(psych)
 
 # ép lại kiểu factor cho các features
 data$MSSubClass  <- factor(data$MSSubClass)
@@ -27,9 +28,14 @@ data$KitchenAbvGr <- factor(data$KitchenAbvGr)
 data$TotRmsAbvGrd <- factor(data$TotRmsAbvGrd)
 data$Fireplaces <- factor(data$Fireplaces)
 data$MoSold<-factor(data$MoSold)
+# data$YearBuilt<-factor(data$YearBuilt)
+# data$YearRemodAdd<-factor(data$YearRemodAdd)
+# data$YrSold <-factor(data$YrSold)
 
 # kiểm tra lại data set 
 str(data)
+
+
 # 
 # 
 
@@ -89,9 +95,9 @@ plot1<-ggplot(data,aes(OverallQual)) + geom_bar(fill ='maroon') +
   theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   labs(
     subtitle = " Rates the overall material and finish of the house ",
-    title=" Đồ thị phân bố của OverAll Quaity",
-    y= "Frequency",
-    x="value"
+    title=" Đồ thị phân bố\n của OverAll Quaity",
+    y= "",
+    x="rate"
   )
 
 plot2<-ggplot(data,aes(OverallCond)) + geom_bar(fill ='maroon') + 
@@ -99,9 +105,9 @@ plot2<-ggplot(data,aes(OverallCond)) + geom_bar(fill ='maroon') +
   theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   labs(
     subtitle = " Rates the overall condition of the house ",
-    title=" Đồ thị phân bố của OverAll OverallCond ",
-    y= "Frequency",
-    x="value"
+    title=" Đồ thị phân bố của \n OverAll OverallCond ",
+    y= "",
+    x="rate"
   )
 
 pushViewport(viewport(layout = grid.layout(1, 2)))
@@ -119,21 +125,21 @@ print(plot2, vp = viewport(layout.pos.row = 1, layout.pos.col = 2))
 
 
 
-ybplot<-ggplot(data,aes(YearBuilt))+ geom_histogram(fill ='maroon')+theme_bw() +
+ybplot<-ggplot(data,aes(YearBuilt))+ geom_bar(fill ='maroon')+theme_bw() +
   theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   labs(
     subtitle = " Original construction year ",
     title=" Đồ thị của  YearBuid  ",
-    y= "Frequency",
+    y= "",
     x="Year"
   )
 
-yraplot<-ggplot(data,aes(YearRemodAdd))+ geom_histogram(fill ='maroon')+theme_bw() +
+yraplot<-ggplot(data,aes(YearRemodAdd))+ geom_bar(fill ='maroon')+theme_bw() +
   theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   labs(
     subtitle = " Remodel date \n(same as construction date if no  remodeling or additions) ",
     title=" Đồ thị của  YearRemodAdd  ",
-    y= "Frequency",
+    y= "",
     x="Year"
   )
 # sẽ để song song
@@ -186,7 +192,7 @@ ggplot(data,aes(x='', y=GarageArea))+ geom_boxplot(aes(fill=factor(GarageCars)),
   theme_bw() + theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   labs(
     title="  Garage Area and GarageCars ",
-    subtitle = "    ",
+    subtitle = " diện tích gara \n với số xe chứa đc",
     fill="",
     y= "Diện tích garage",
     x=""
@@ -215,16 +221,16 @@ ggplot(data,aes(x='', y=GarageArea))+ geom_boxplot(aes(fill=factor(GarageCars)),
 wd<-ggplot(data,aes(WoodDeckSF))+ geom_density(fill ='maroon')+theme_bw() +
   theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   labs(
-    subtitle = "  Wood deck area in square feet ",
-    title="   ",
+    subtitle = "  Wood deck area \n in square feet ",
+    title="WoodDeckSF",
     y= "",
     x="WoodDeckSF"
   )
 opsf <-ggplot(data,aes(OpenPorchSF))+ geom_density(fill ='maroon')+theme_bw() +
   theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   labs(
-    subtitle = " Open porch area in square feet ",
-    title="   ",
+    subtitle = " Open porch area \n in square feet ",
+    title="OpenPorchSF",
     y= "",
     x="OpenPorchSF"
   )
@@ -233,8 +239,8 @@ opsf <-ggplot(data,aes(OpenPorchSF))+ geom_density(fill ='maroon')+theme_bw() +
 ep <-ggplot(data,aes(EnclosedPorch))+ geom_density(fill ='maroon')+theme_bw() +
   theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   labs(
-    subtitle = " Enclosed porch area in square feet ",
-    title="   ",
+    subtitle = " Enclosed porch \n area in square feet ",
+    title="EnclosedPorch",
     y= "",
     x="EnclosedPorch"
   )
@@ -243,7 +249,7 @@ tsp <- ggplot(data,aes(ThreeSsnPorch))+ geom_density(fill ='maroon')+theme_bw() 
   theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   labs(
     subtitle = "  Three season \n porch area in square feet ",
-    title="   ",
+    title=" ThreeSsnPorch",
     y= "",
     x="ThreeSsnPorch"
   )
@@ -252,15 +258,15 @@ sp <-ggplot(data,aes(ScreenPorch))+ geom_density(fill ='maroon')+theme_bw() +
   theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   labs(
     subtitle = " Screen porch \n area in square feet ",
-    title="   ",
+    title="ScreenPorch",
     y= "",
     x="ScreenPorch"
   )
 pa<-ggplot(data,aes(PoolArea))+ geom_density(fill ='maroon')+theme_bw() +
   theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   labs(
-    subtitle = " Pool area in square feet ",
-    title="   ",
+    subtitle = " Pool area in\n square feet ",
+    title=" PoolArea ",
     y= "density",
     x="PoolArea"
   )
@@ -289,7 +295,7 @@ stfloor<-ggplot(data,aes(X1stFlrSF)) + geom_density(fill="maroon")+
   theme_bw() +
   theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   labs(
-    title=" First Floor square feet   ",
+    title=" First Floor \nsquare feet   ",
     subtitle = " Diên tích sàn tầng1 (dv:feet^2) ",
     y= "",
     x="1st Floor area"
@@ -300,23 +306,30 @@ ndfloor<-ggplot(data,aes(X2ndFlrSF)) + geom_density(fill="maroon")+
   theme_bw() +
   theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   labs(
-    title="  Second floor square feet  ",
+    title="  Second floor \n square feet  ",
     subtitle = " Diên tích sàn tầng 2 tường (dv:feet^2) ",
     y= "",
     x="Floor area"
   )
 
-pushViewport(viewport(layout = grid.layout(3, 3)))
+pushViewport(viewport(layout = grid.layout(2, 2)))
 
 print(wd, vp = viewport(layout.pos.row = 1, layout.pos.col = 1))
 print(opsf, vp = viewport(layout.pos.row = 1, layout.pos.col = 2))
-print(ep, vp = viewport(layout.pos.row = 1, layout.pos.col = 3))
-print(tsp, vp = viewport(layout.pos.row = 2, layout.pos.col = 1))
-print(sp, vp = viewport(layout.pos.row = 2, layout.pos.col = 2))
-print(pa, vp = viewport(layout.pos.row = 2, layout.pos.col = 3))
-print(stfloor, vp = viewport(layout.pos.row = 3, layout.pos.col = 1))
-print(ndfloor, vp = viewport(layout.pos.row = 3, layout.pos.col = 2))
+print(ep, vp = viewport(layout.pos.row = 2, layout.pos.col = 1))
+print(tsp, vp = viewport(layout.pos.row = 2, layout.pos.col = 2))
+
+print(sp, vp = viewport(layout.pos.row = 1, layout.pos.col = 1))
+print(pa, vp = viewport(layout.pos.row = 1, layout.pos.col = 2))
+print(stfloor, vp = viewport(layout.pos.row = 2, layout.pos.col = 1))
+print(ndfloor, vp = viewport(layout.pos.row = 2, layout.pos.col = 2))
+
 print(mva, vp = viewport(layout.pos.row = 3, layout.pos.col = 3))
+
+
+vars=cbind(WoodDeckSF,OpenPorchSF,EnclosedPorch,ThreeSsnPorch,ScreenPorch,PoolArea,X1stFlrSF,X2ndFlrSF,SalePrice)
+pairs.panels(vars)# tạo ma trận tương quan
+corr.test(vars)
 
 #-----------------------------------------------------------------------------------
 
@@ -375,14 +388,16 @@ print(bft1, vp = viewport(layout.pos.row = 1, layout.pos.col = 2))
 print(bfsf2, vp = viewport(layout.pos.row = 2, layout.pos.col = 1))
 print(bft2, vp = viewport(layout.pos.row = 2, layout.pos.col = 2))
 
-
+vars=cbind(BsmtFinSF1,BsmtFinSF2,SalePrice)
+pairs.panels(vars)# tạo ma trận tương quan
+corr.test(vars)
 
 
 #--------------------------------------------------------------------------------
 
 # LowQualFinSF: Low quality finished square feet (all floors)
 
-ggplot(data,aes( FullBath ) ) + geom_bar(fill="maroon")+
+ggplot(data,aes( LowQualFinSF ) ) + geom_density(fill="maroon")+
   theme_bw() +
   theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   labs(
@@ -391,9 +406,7 @@ ggplot(data,aes( FullBath ) ) + geom_bar(fill="maroon")+
     y= "",
     x="Quanlity"
   )
-
-
-
+summary(LowQualFinSF)
 
 # 
 # GrLivArea: Above grade (ground) living area square feet
@@ -482,18 +495,77 @@ ggplot(data,aes( TotalBsmtSF) ) + geom_density(fill="maroon")+
   theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
 
+
+
+# ----------------------------------------------------------------------------
+ggplot(data,aes( SalePrice) ) + geom_density(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+ggplot(data,aes(x='', y=SalePrice) ) + geom_boxplot(fill="maroon" , notch = T, notchwidth = 0.1)+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
 #------------------------------------------------------------------------------
+
+summary(data)
+
+
 
 # Chạy mô hình 
 # 
+set.seed(14) # chia radom dể test
+ind <- sample(2, nrow(data), replace = TRUE, prob = c(0.7, 0.3))
+train.data <- data [ind == 1, ]
+test.data <- data[ind == 2, ]
 
-md <- lm(SalePrice~. , data= data)
+dim(train.data)
+dim(test.data)
+
+
+md <- lm(SalePrice~. , data= train.data)
 summary(md)
 plot(md)
-Model2<-step(md, direction="backward")
-# summary(md)
+
+# md$fitted.values[1:37]
 
 
 
+#Đánh giá mô hình trên tập dữ liệu test
+table( test.data$OverallQual )
+table( train.data$OverallQual )
+
+pre <- predict(md,  newdata=test.data)
+
+
+plot(test.data$SalePrice, pre, xlab = "Observed", ylab = "Prediction")
+
+abline(a = 0, b = 1)
+plot(md) #dia
+
+
+
+
+# giảm chiều dữ liệu :
+# chọn mô hình mới md2
+md2<-step(md, direction="backward")
+
+# SalePrice ~PoolArea+ThreeSsnPorch+BsmtFinSF1+YearRemodAdd +HalfBath+BsmtFinType1+MoSold+
+#   MasVnrArea+ LowQualFinSF +KitchenAbvGr +LotFrontage+ TotRmsAbvGrd BsmtFullBath + ScreenPorch +GarageCars+
+#   YearBuilt +LotArea+OverallCond+BedroomAbvGr+X1stFlrSF + MSSubClass+FullBath+X2ndFlrSF+Fireplaces+OverallQual
+
+# summary(md2)
+# plot (md2)
+
+
+
+#tương quan đa biến
+
+library(psych)
+vars=cbind(data)
+pairs.panels(vars)# tạo ma trận tương quan
+corr.test(vars)
 
 

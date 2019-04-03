@@ -11,6 +11,9 @@ dat$OverallCond <-factor(dat$OverallCond)
 train <- data_set[1:600,]
 test <- data_set[601:1460 ,]
 
+# 
+
+
 
 
 # công thưc 

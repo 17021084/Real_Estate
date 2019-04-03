@@ -1,0 +1,892 @@
+---
+title: "Predict Property"
+author: "Quang Trung"
+date: "March 31, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("C:/Users/DoQuangTrung/Desktop/project")
+data <- read.csv("build_mode.csv")
+library(dplyr)
+library(tidyverse)
+library(psych)
+library(grid)
+library(ggplot2)
+
+data$MSSubClass  <- factor(data$MSSubClass)
+data$OverallQual <- factor(data$OverallQual)
+data$OverallCond <- factor(data$OverallCond) 
+data$FullBath <-factor(data$FullBath)
+data$BsmtFullBath <- factor(data$BsmtFullBath)
+data$FullBath <-factor(data$FullBath)
+data$HalfBath <- factor(data$HalfBath)
+data$BedroomAbvGr <- factor(data$BedroomAbvGr)
+data$KitchenAbvGr <- factor(data$KitchenAbvGr)
+data$TotRmsAbvGrd <- factor(data$TotRmsAbvGrd)
+data$Fireplaces <- factor(data$Fireplaces)
+data$GarageCars <-factor(data$GarageCars)
+# data$MoSold<-factor(data$MoSold)
+# data$YearBuilt<-factor(data$YearBuilt)
+# data$YearRemodAdd<-factor(data$YearRemodAdd)
+
+attach(data)
+```
+
+# REAL ESTATE
+this is a report, prediction'Property.
+Dataset: kaggle.
+
+*[hello]
+
+###Problem : Using several of feature to predict sale price
+
+### Description of features 
+
+MSSubClass: Identifies the type of dwelling involved in the sale.	
+
+        20	1-STORY 1946 & NEWER ALL STYLES
+        30	1-STORY 1945 & OLDER
+        40	1-STORY W/FINISHED ATTIC ALL AGES
+        45	1-1/2 STORY - UNFINISHED ALL AGES
+        50	1-1/2 STORY FINISHED ALL AGES
+        60	2-STORY 1946 & NEWER
+        70	2-STORY 1945 & OLDER
+        75	2-1/2 STORY ALL AGES
+        80	SPLIT OR MULTI-LEVEL
+        85	SPLIT FOYER
+        90	DUPLEX - ALL STYLES AND AGES
+       120	1-STORY PUD (Planned Unit Development) - 1946 & NEWER
+       150	1-1/2 STORY PUD - ALL AGES
+       160	2-STORY PUD - 1946 & NEWER
+       180	PUD - MULTILEVEL - INCL SPLIT LEV/FOYER
+       190	2 FAMILY CONVERSION - ALL STYLES AND AGES
+
+LotFrontage: Linear feet of street connected to property
+
+LotArea: Lot size in square feet
+
+OverallQual: Rates the overall material and finish of the house
+
+       10	Very Excellent
+       9	Excellent
+       8	Very Good
+       7	Good
+       6	Above Average
+       5	Average
+       4	Below Average
+       3	Fair
+       2	Poor
+       1	Very Poor
+	
+OverallCond: Rates the overall condition of the house
+
+       10	Very Excellent
+       9	Excellent
+       8	Very Good
+       7	Good
+       6	Above Average	
+       5	Average
+       4	Below Average	
+       3	Fair
+       2	Poor
+       1	Very Poor
+		
+YearBuilt: Original construction date
+
+YearRemodAdd: Remodel date (same as construction date if no remodeling or additions)
+
+MasVnrArea: Masonry veneer area in square feet
+
+BsmtFinType1: Rating of basement finished area
+
+       GLQ	Good Living Quarters
+       ALQ	Average Living Quarters
+       BLQ	Below Average Living Quarters	
+       Rec	Average Rec Room
+       LwQ	Low Quality
+       Unf	Unfinshed
+       NA	No Basement
+		
+BsmtFinSF1: Type 1 finished square feet
+
+BsmtFinType2: Rating of basement finished area (if multiple types)
+
+       GLQ	Good Living Quarters
+       ALQ	Average Living Quarters
+       BLQ	Below Average Living Quarters	
+       Rec	Average Rec Room
+       LwQ	Low Quality
+       Unf	Unfinshed
+       NA	No Basement
+
+BsmtFinSF2: Type 2 finished square feet
+
+BsmtUnfSF: Unfinished square feet of basement area
+
+TotalBsmtSF: Total square feet of basement area
+
+1stFlrSF: First Floor square feet
+ 
+2ndFlrSF: Second floor square feet
+
+LowQualFinSF: Low quality finished square feet (all floors)
+
+GrLivArea: Above grade (ground) living area square feet
+
+BsmtFullBath: Basement full bathrooms
+
+BsmtHalfBath: Basement half bathrooms
+
+FullBath: Full bathrooms above grade
+
+HalfBath: Half baths above grade
+
+Bedroom: Bedrooms above grade (does NOT include basement bedrooms)
+
+Kitchen: Kitchens above grade
+
+TotRmsAbvGrd: Total rooms above grade (does not include bathrooms)
+
+GarageYrBlt: Year garage was built
+
+GarageCars: Size of garage in car capacity
+
+GarageArea: Size of garage in square feet
+
+WoodDeckSF: Wood deck area in square feet
+
+OpenPorchSF: Open porch area in square feet
+
+EnclosedPorch: Enclosed porch area in square feet
+
+3SsnPorch: Three season porch area in square feet
+
+ScreenPorch: Screen porch area in square feet
+
+PoolArea: Pool area in square feet
+
+DMoSold: Month Sold (MM)
+
+YrSold: Year Sold (YYYY)
+
+
+##Descriptive statistics 
+
+
+####  OutCome variable :SalePrice
+
+
+```{r saleprice , echo= FALSE}
+
+box<- ggplot(data,aes(x='', y=SalePrice) ) + geom_boxplot(fill="maroon" , notch = T, notchwidth = 0.1)+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+summary(SalePrice)
+
+de<-ggplot(data,aes(SalePrice) ) + geom_density(fill="maroon" )+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+
+pushViewport(viewport(layout = grid.layout(1, 2)))
+print(box, vp = viewport(layout.pos.row = 1, layout.pos.col = 1))
+print(de, vp = viewport(layout.pos.row = 1, layout.pos.col = 2))
+
+```
+```
+The distribution  of Sale Price seem like normal distribution
+```
+
+### Detail Feature
+
+####1:MSSubClass
+
+```{r MSSubClass , echo=FALSE}
+
+ggplot(data, aes(x = "", y="", fill = MSSubClass)) + 
+  geom_bar(width = 1, stat = "identity") +
+  #theme(axis.line = element_blank(), 
+  #    plot.title = element_text(hjust=0.5)) + 
+  
+  labs(fill="class", 
+       x=NULL, 
+       y=NULL, 
+       title="Pie Chart of MSSubClass",
+       caption="Identifies the type of dwelling involved in the sale."
+  )+ coord_polar(theta = "y", start=0)
+
+summary(MSSubClass)
+
+
+```
+
+So we see :  type 20 (536 obs), type 60  (299 obs) and type 50 (144 obs)  are  favor type.
+
+
+####2:LotFrontage
+
+Linear feet of street connected to property
+
+```{r LotFrontage , echo=FALSE}
+boxplot(LotFrontage , main =" Plot box LotFrontAge", col="maroon" )
+
+summary(LotFrontage)
+vars=cbind(LotFrontage,SalePrice)
+# pairs.panels(vars)# tạo ma trận tương quan
+corr.test(vars)
+```
+
+``` 
+The mean of LotFrontage is 70.05 . 
+Confidence interval ( 95% ) from 59.00 to 80
+lotfrontage has 259 missing value
+the correlation between  LotFrontage and saleprice is 0.35  
+  
+```
+
+
+
+####3:LotArea 
+Lot size in square feet
+
+
+```{r LotArea , echo=FALSE}
+
+ggplot(data,aes(LotArea)) + geom_density(fill='maroon')+ theme_bw()
+summary(LotArea)
+corr.test(cbind(LotArea,SalePrice))
+
+```
+
+The correlation between  LotFrontage and saleprice :0.26
+The Confidence interval : [7554 , 11602]
+
+
+
+
+####5-6 : OverallQual ,OverallCond.
+
+OverallQual: Rates the overall material and finish of the house .
+
+OverallCond: Rates the overall condition of the house
+
+```
+       10	Very Excellent
+       9	Excellent
+       8	Very Good
+       7	Good
+       6	Above Average
+       5	Average
+       4	Below Average
+       3	Fair
+       2	Poor
+       1	Very Poor
+```
+
+```{r overall , echo=FALSE}
+
+plot1<-ggplot(data,aes(OverallQual)) + geom_bar(fill ='maroon') + 
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    subtitle = " Rates the overall\n material and finish of the house ",
+    title=" Distribution \nof OverAll Quaity",
+    y= "Counts",
+    x="rate"
+  )
+
+plot2<-ggplot(data,aes(OverallCond)) + geom_bar(fill ='maroon') + 
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    subtitle = " Rates the overall \ncondition of the house ",
+    title="Distribution \n OverAll OverallCond ",
+    y= "Counts",
+    x="rates"
+  )
+
+pushViewport(viewport(layout = grid.layout(1, 3)))
+print(plot1, vp = viewport(layout.pos.row = 1, layout.pos.col = 1))
+print(plot2, vp = viewport(layout.pos.row = 1, layout.pos.col = 3))
+
+
+```
+
+From plot. We see rates  5 6 7 the mostly
+
+
+#### 7-8 : YearBuilt and YearRemodAdd
+
+YearBuilt: Original construction date
+
+YearRemodAdd: Remodel date (same as construction date if no remodeling or additions)
+
+
+
+```{r yearbuil , echo= FALSE}
+
+
+ybplot<-ggplot(data,aes(YearBuilt))+ geom_bar(fill ='maroon')+theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    subtitle = " Original construction year ",
+    title=" YearBuid  ",
+    y= "",
+    x="Year"
+  )
+
+yraplot<-ggplot(data,aes(YearRemodAdd))+ geom_bar(fill ='maroon')+theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    subtitle = " Remodel date \n(same as construction date \nif no  remodeling or additions) ",
+    title="   YearRemodAdd  ",
+    y= "",
+    x="Year"
+  )
+# sẽ để song song
+pushViewport(viewport(layout = grid.layout(1, 2)))
+
+print(ybplot, vp = viewport(layout.pos.row = 1, layout.pos.col = 1))
+print(yraplot, vp = viewport(layout.pos.row = 1, layout.pos.col = 2))
+
+print('YearBuilt summary')
+summary(YearBuilt)
+
+print("YearRemodAdd summary")
+summary(YearRemodAdd)
+
+```
+
+#### 9 - 10 :YrSold and MoSold 
+
+YrSold : Month Sold
+
+MoSold : Year Sold
+
+```{r mysold , echo=F }
+
+ggplot(data,aes(YrSold))+ geom_bar(aes(fill=factor(MoSold)),position="dodge" )+
+  
+  theme_bw() + theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    title=" Month n Year Sold  ",
+    subtitle = " month group Year Sold ",
+    fill="Month",
+    y= "Count",
+    x="Year"
+  )
+```
+
+Insight : Summer is the best time for sale 
+
+
+
+####11 :GarageYrBlt
+GarageYrBlt  Year garage was built 
+
+
+```{r GarageYrBlt, echo=F, message=FALSE, warning=FALSE}
+ggplot(data,aes(GarageYrBlt))+ geom_histogram(fill ='maroon' )+
+  
+  theme_bw() + theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    title=" GarageYrBlt  ",
+    subtitle = " the Year when garage was built  ",
+    y= "Frequency",
+    x="Year"
+  )
+
+summary(GarageYrBlt)
+```
+
+
+####12 -13 :GarageCars and GarageArea
+ 
+GarageCars: Size of garage in car capacity
+
+GarageArea: Size of garage in square feet
+
+
+```{r gara ,echo=F}
+ggplot(data,aes(x='', y=GarageArea))+ geom_boxplot(aes(fill=factor(GarageCars)),position="dodge" )+
+  
+  theme_bw() + theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    title="  Garage Area and GarageCars ",
+    subtitle = "Color refer the number car",
+    fill="",
+    y= " Garage Area",
+    x="Nummber of Cars in Garage"
+  )
+print("GarageArea")
+summary(GarageArea )
+print("GarageCars")
+summary(GarageCars)
+
+```
+
+
+####14-22:WoodDeckSF , OpenPorchSF , EnclosedPorch , ThreeSsnPorch ,ScreenPorch 
+
+
+####PoolArea,MasVnrArea,MasVnrArea , 1stFlrSF ,2ndFlrSF,
+
+
+
+ WoodDeckSF: Wood deck area in square feet
+ 
+ OpenPorchSF: Open porch area in square feet
+ 
+ EnclosedPorch: Enclosed porch area in square feet
+ 
+ ThreeSsnPorch: Three season porch area in square feet
+ 
+ ScreenPorch: Screen porch area in square feet
+ 
+ PoolArea: Pool area in square feet
+ 
+ MasVnrArea: Masonry veneer area in square feet 
+ 
+ 1stFlrSF: First Floor square feet
+ 
+ 2ndFlrSF: Second floor square feet
+ 
+```{r 14_22, echo=F, warning=FALSE}
+wd<-ggplot(data,aes(WoodDeckSF))+ geom_density(fill ='maroon')+theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    subtitle = "  Wood deck area \n in square feet ",
+    title="WoodDeckSF",
+    y= "",
+    x="WoodDeckSF"
+  )
+opsf <-ggplot(data,aes(OpenPorchSF))+ geom_density(fill ='maroon')+theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    subtitle = " Open porch area \n in square feet ",
+    title="OpenPorchSF",
+    y= "",
+    x="OpenPorchSF"
+  )
+
+
+ep <-ggplot(data,aes(EnclosedPorch))+ geom_density(fill ='maroon')+theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    subtitle = " Enclosed porch \n area in square feet ",
+    title="EnclosedPorch",
+    y= "",
+    x="EnclosedPorch"
+  )
+
+tsp <- ggplot(data,aes(ThreeSsnPorch))+ geom_density(fill ='maroon')+theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    subtitle = "  Three season \n porch area in square feet ",
+    title=" ThreeSsnPorch",
+    y= "",
+    x="ThreeSsnPorch"
+  )
+
+sp <-ggplot(data,aes(ScreenPorch))+ geom_density(fill ='maroon')+theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    subtitle = " Screen porch \n area in square feet ",
+    title="ScreenPorch",
+    y= "",
+    x="ScreenPorch"
+  )
+pa<-ggplot(data,aes(PoolArea))+ geom_density(fill ='maroon')+theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    subtitle = " Pool area in\n square feet ",
+    title=" PoolArea ",
+    y= "density",
+    x="PoolArea"
+  )
+
+
+mva<- ggplot(data,aes(MasVnrArea)) + geom_density(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    title="  Masonry veneer area   ",
+    subtitle = "",
+    y= "",
+    x="MasVnrArea"
+  )
+
+
+####
+# 1stFlrSF: First Floor square feet
+# 
+# 2ndFlrSF: Second floor square feet
+
+
+stfloor<-ggplot(data,aes(X1stFlrSF)) + geom_density(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    title=" First Floor area ",
+    subtitle = " square feet  ",
+    y= "",
+    x="1st Floor area"
+  )
+
+
+ndfloor<-ggplot(data,aes(X2ndFlrSF)) + geom_density(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    title="  Second floor area",
+    subtitle = " (square feet) ",
+    y= "",
+    x="Floor area"
+  )
+
+pushViewport(viewport(layout = grid.layout(3, 3)))
+
+print(wd, vp = viewport(layout.pos.row = 1, layout.pos.col = 1))
+print(opsf, vp = viewport(layout.pos.row = 1, layout.pos.col = 2))
+print(ep, vp = viewport(layout.pos.row = 1, layout.pos.col = 3))
+print(tsp, vp = viewport(layout.pos.row = 2, layout.pos.col = 1))
+print(sp, vp = viewport(layout.pos.row = 2, layout.pos.col = 2))
+print(pa, vp = viewport(layout.pos.row = 2, layout.pos.col = 3))
+print(stfloor, vp = viewport(layout.pos.row = 3, layout.pos.col = 1))
+print(ndfloor, vp = viewport(layout.pos.row = 3, layout.pos.col = 2))
+print(mva, vp = viewport(layout.pos.row = 3, layout.pos.col = 3))
+
+
+vars=cbind(WoodDeckSF,OpenPorchSF,EnclosedPorch,ThreeSsnPorch,ScreenPorch,PoolArea,X1stFlrSF,X2ndFlrSF,SalePrice)
+pairs.panels(vars)# tạo ma trận tương quan
+# corr.test(vars)
+# print( corr.test(vars),short=FALSE)
+
+
+
+
+
+
+#-----------------------------------------------------------------------------------
+
+
+```
+WoodDeckSF,OpenPorchSF,EnclosedPorch,ThreeSsnPorch,ScreenPorch,PoolArea,X1stFlrSF,X2ndFlrSF,
+```
+   WoodDeckSF      OpenPorchSF     EnclosedPorch    ThreeSsnPorch     ScreenPorch        PoolArea      
+ Min.   :  0.00   Min.   :  0.00   Min.   :  0.00   Min.   :  0.00   Min.   :  0.00   Min.   :  0.000  
+ 1st Qu.:  0.00   1st Qu.:  0.00   1st Qu.:  0.00   1st Qu.:  0.00   1st Qu.:  0.00   1st Qu.:  0.000  
+ Median :  0.00   Median : 25.00   Median :  0.00   Median :  0.00   Median :  0.00   Median :  0.000  
+ Mean   : 94.24   Mean   : 46.66   Mean   : 21.95   Mean   :  3.41   Mean   : 15.06   Mean   :  2.759  
+ 3rd Qu.:168.00   3rd Qu.: 68.00   3rd Qu.:  0.00   3rd Qu.:  0.00   3rd Qu.:  0.00   3rd Qu.:  0.000  
+ Max.   :857.00   Max.   :547.00   Max.   :552.00   Max.   :508.00   Max.   :480.00   Max.   :738.000  
+    
+                                                                                        
+   X2ndFlrSF       X1stFlrSF
+ Min.   :   0     Min.   : 334
+ 1st Qu.:   0     1st Qu.: 882  
+ Median :   0     Median :1087  
+ Mean   : 347     Mean   :1163          
+ 3rd Qu.: 728     3rd Qu.:1391               
+ Max.   :2065     Max.   :4692     
+                                                                                                       
+
+```
+
+
+The matix above is correlation matrix . 
+
+1stFlrSF has the biggest value (0.61). x2ndFlrSF and Wooddesktop (0.32).  they  effect Sale price
+
+
+
+
+
+
+#### 23-24-25-26:BsmtFinSF1 , BsmtFinType1,  BsmtFinSF2 and BsmtFinType2
+
+
+
+
+BsmtFinSF1: Type 1 finished square feet  
+
+BsmtFinType1: Rating of basement finished area 
+
+BsmtFinSF2: Type 2 finished square feet ##
+
+BsmtFinType2: Rating of basement finished area (if multiple types)
+
+
+
+
+```{r bsmt,echo=F}
+
+
+
+bfsf1<- ggplot(data,aes(BsmtFinSF1)) + geom_density(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    title="Type 1 finished\n  square feet",
+    subtitle = " square feet ",
+    y= "",
+    x="area"
+  )
+
+
+bft1<-ggplot(data,aes(BsmtFinType1)) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    title="Rating of basement \nfinished area  ",
+    subtitle = " area type 1 ",
+    y= "",
+    x="Rates"
+  )
+
+
+# BsmtFinSF2: Type 2 finished square feet ##
+# BsmtFinType2: Rating of basement finished area (if multiple types)
+
+
+bfsf2<- ggplot(data,aes(BsmtFinSF2)) + geom_density(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    title="Type 2 finished\n  square feet",
+    subtitle = " square feet ",
+    y= "",
+    x="area"
+  )
+
+bft2<-ggplot(data,aes(BsmtFinType2)) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  labs(
+    title="Rating of basement \nfinished area  ",
+    subtitle = " area type 1 ",
+    y= "",
+    x="Rates"
+  )
+
+pushViewport(viewport(layout = grid.layout(2, 2)))
+
+print(bfsf1, vp = viewport(layout.pos.row = 1, layout.pos.col = 1))
+print(bft1, vp = viewport(layout.pos.row = 1, layout.pos.col = 2))
+print(bfsf2, vp = viewport(layout.pos.row = 2, layout.pos.col = 1))
+print(bft2, vp = viewport(layout.pos.row = 2, layout.pos.col = 2))
+
+print("Correlation matrix")
+vars=cbind(BsmtFinSF1,BsmtFinSF2,BsmtFinType1,BsmtFinType2,SalePrice)
+pairs.panels(vars)# tạo ma trận tương quan
+# corr.test(vars)
+
+
+```
+
+```
+    BsmtFinSF1       BsmtFinSF2            BsmtFinType1        BsmtFinType2    
+  Min.   :   0.0   Min.   :   0.00         ALQ :220             ALQ :  19 
+  1st Qu.:   0.0   1st Qu.:   0.00         BLQ :148             BLQ :  33 
+  Median : 383.5   Median :   0.00         GLQ :418             GLQ :  14
+  Mean   : 443.6   Mean   :  46.55         LwQ : 74             LwQ :  46
+  3rd Qu.: 712.2   3rd Qu.:   0.00         Rec :133             Rec :  54 
+   Max.   :5644.0   Max.   :1474.00        Unf :430             Unf :1256  
+                                           NA's: 37             NA's:  38 
+                 
+```
+
+#### LowQualFinSF ,GrLivArea,BsmtFullBath,BsmtHalfBath,BsmtFullBath,HalfBath
+
+
+```{r remain , echo= F}
+# LowQualFinSF: Low quality finished square feet (all floors)
+
+lq <-ggplot(data,aes( LowQualFinSF ) ) + geom_density(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+  
+
+# 
+# GrLivArea: Above grade (ground) living area square feet
+# 
+
+gl<-ggplot(data,aes( GrLivArea ) ) + geom_density(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+# BsmtFullBath: Basement full bathrooms 
+#
+bfb<-ggplot(data,aes( BsmtFullBath ) ) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+# BsmtHalfBath: Basement half bathrooms
+# 
+bhb<-ggplot(data,aes( BsmtHalfBath ) ) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+
+
+# FullBath: Full bathrooms above grade
+#
+fb <- ggplot(data,aes( FullBath ) ) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+
+
+# HalfBath: Half baths above grade
+# 
+
+hb<-ggplot(data,aes( HalfBath ) ) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+# BedroomAbvGr: Bedrooms above grade (does NOT include basement bedrooms)
+# 
+ba<-ggplot(data,aes( BedroomAbvGr) ) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+
+# Kitchen: Kitchens above grade
+
+
+ka<-ggplot(data,aes( KitchenAbvGr) ) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+
+# TotRmsAbvGrd: Total rooms above grade (does not include bathrooms)
+
+tra<-ggplot(data,aes( TotRmsAbvGrd) ) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+# Fireplaces: Number of fireplaces
+# 
+fp<-ggplot(data,aes( Fireplaces) ) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+# BsmtUnfSF: Unfinished square feet of basement area
+# 
+
+bm<-ggplot(data,aes( BsmtUnfSF) ) + geom_density(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+# TotalBsmtSF: Total square feet of basement area
+tb<-ggplot(data,aes( TotalBsmtSF) ) + geom_density(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+pushViewport(viewport(layout=grid.layout(2,3)))
+
+print( lq , vp = viewport(layout.pos.row = 1, layout.pos.col = 1  ))
+print( gl , vp = viewport(layout.pos.row = 1, layout.pos.col = 2  ))
+print( bfb , vp = viewport(layout.pos.row = 1, layout.pos.col =3  ))
+print( bhb , vp = viewport(layout.pos.row = 2, layout.pos.col =  1))
+print( fb , vp = viewport(layout.pos.row = 2, layout.pos.col =  2))
+print( hb , vp = viewport(layout.pos.row = 2, layout.pos.col =  3))
+
+```
+
+
+
+
+```{r remain2 ,echo=F  }
+
+# BedroomAbvGr: Bedrooms above grade (does NOT include basement bedrooms)
+# 
+ba<-ggplot(data,aes( BedroomAbvGr) ) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+
+# Kitchen: Kitchens above grade
+
+
+ka<-ggplot(data,aes( KitchenAbvGr) ) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+
+# TotRmsAbvGrd: Total rooms above grade (does not include bathrooms)
+
+tra<-ggplot(data,aes( TotRmsAbvGrd) ) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+# Fireplaces: Number of fireplaces
+# 
+fp<-ggplot(data,aes( Fireplaces) ) + geom_bar(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+# BsmtUnfSF: Unfinished square feet of basement area
+# 
+
+bm<-ggplot(data,aes( BsmtUnfSF) ) + geom_density(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+# TotalBsmtSF: Total square feet of basement area
+tb<-ggplot(data,aes( TotalBsmtSF) ) + geom_density(fill="maroon")+
+  theme_bw() +
+  theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+pushViewport(viewport(layout=grid.layout(2,3)))
+
+
+print( ba , vp = viewport(layout.pos.row = 1, layout.pos.col =  1))
+print( ka , vp = viewport(layout.pos.row = 1, layout.pos.col =  2))
+print( tra , vp = viewport(layout.pos.row = 1, layout.pos.col =  3))
+print( fp , vp = viewport(layout.pos.row = 2, layout.pos.col =  1))
+print( bm , vp = viewport(layout.pos.row = 2, layout.pos.col =  2))
+print( tb , vp = viewport(layout.pos.row = 2, layout.pos.col =  3))
+
+
+```
+
+
+### Implement Linear model
+
+```{r linearmodel , echo=F} 
+set.seed(14) # chia radom dể test
+ind <- sample(2, nrow(data), replace = TRUE, prob = c(0.7, 0.3))
+train.data <- data [ind == 1, ]
+test.data <- data[ind == 2, ]
+md <- lm(SalePrice~. , data= train.data)
+summary(md)
+plot(md)
+
+
+
+```
+
+The Linear model can describle 89,27%. the change of sale price.
+
+
+
+
